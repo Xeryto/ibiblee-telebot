@@ -122,7 +122,6 @@ def get_admin_part(username: str):
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.from_user.id, 'hello')
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     try:
         set_uid_by_username(message.from_user.username, message.from_user.id)
