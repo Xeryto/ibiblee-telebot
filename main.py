@@ -24,7 +24,7 @@ def redirect_message():
 if __name__ == "__main__":
     bot.remove_webhook()
     bot.set_webhook(url=APP_URL)
-    server.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5001)))
+    server.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
 
 def insert_part(part: int, user_id: int, username: str):
     cursor.execute('INSERT INTO user_part (user_id, part, username) VALUES (%s, %s, %s)', (user_id, part, username))
