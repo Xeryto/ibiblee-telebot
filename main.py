@@ -13,6 +13,7 @@ logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 conn = psycopg2.connect(DB_URL, sslmode="require")
 cursor = conn.cursor()
+direct = os.path.dirname(__file__)
 
 @server.route(f"/{BOT_TOKEN}", methods=["POST"])
 def redirect_message():
@@ -228,7 +229,7 @@ def get_text_messages(message):
             items.append(types.KeyboardButton(quest_types[i][1]))
             markup.add(items[i])
         update_part(message.from_user.id, part=1)
-        bot.send_photo(message.from_user.id, 'https://lh3.googleusercontent.com/12GJ5HEGMWk6JnkUdWjhthXakfP02ImT1Uuk-5UM_wrX2m2MWOtcxCbj8BvEZnI6HKlkDw1SqZkdS-kWwbTBJKCm6mFouY74-LdOarZKlAZjRT6RSFWMe4TP3DJKTXiBWg=w303',
+        bot.send_photo(message.from_user.id, photo=open(os.path.join(direct, '/img/type.jpg'), 'rb'),
                        caption='Выберите тип вопроса', reply_markup=markup)
         return
 
@@ -248,7 +249,7 @@ def get_text_messages(message):
                 update_quest(qid, admin_id=id)
                 aid = check_null(id)
                 if aid is not None:
-                    msg = 'Кто-то хочет с вами встретиться! Вот его ник в telegram: {}, id запроса - {}'.format(message.from_user.username, qid)
+                    msg = 'Кто-то хочет с вами встретиться! Вот его ник в telegram: @{}, id запроса - {}'.format(message.from_user.username, qid)
                     bot.send_message(aid, msg)
         except:
             subjects = get_subj()
@@ -265,7 +266,7 @@ def get_text_messages(message):
                     items.append(types.KeyboardButton(subjects[i][0]))
                     markup.add(items[i])
                 bot.send_photo(message.from_user.id,
-                               'https://lh4.googleusercontent.com/kicmRl8qp_PCq9LP_zk9-clHpE9LhMom4ZgC3MUnDuZDwrmNIcupGim-s4qwx9QUTWS3_oe_6nV-nDEETLZQhXdDr15tshXCCqZI0T-qkPQ-Tmt0qpam87wYDuAqD0A7Iw=w333',
+                               photo=open(os.path.join(direct, '/img/1.jpg'), 'rb'),
                                caption='Какой предмет?', reply_markup=markup)
                 return
             elif message.text.strip() == 'нужна личная встреча с кем-то из дп2':
@@ -276,7 +277,7 @@ def get_text_messages(message):
                     items.append(types.KeyboardButton(admins[i][0]))
                     markup.add(items[i])
                 bot.send_photo(message.from_user.id,
-                               'https://lh6.googleusercontent.com/uhAWHT2wOzTg6H2ZYw9wTuDgle6VNcOkjFaHKKd52tlh-DbAUxppL54aw8TpDs5XMNOg0UDk_3V3JFKf2s1ehH2w6HhgdbXdug0N0xFzswN8E-KhB-qjZjFM1AOXpIv5VQ=w387',
+                               photo=open(os.path.join(direct, '/img/meet.jpg'), 'rb'),
                                caption='с кем ты хочешь встретиться?', reply_markup=markup)
                 return
 
@@ -284,7 +285,7 @@ def get_text_messages(message):
                 update_part(message.from_user.id, part=2)
                 markup = types.ReplyKeyboardRemove()
                 bot.send_photo(message.from_user.id,
-                               'https://lh3.googleusercontent.com/YsQxzOAoF1Sb9ofp95iUeIgLRvbqlApN7_VjZ-QPPb7wwVn-IetRaXbRBUXsWZZ-p1p_vYmmEAzhZYm60Mt31dsCXebHD3TaIKLNICWA0tbNkSlvk5pLPVVQtS56GNBXzw=w307',
+                               photo=open(os.path.join(direct, '/img/quest.jpg'), 'rb'),
                                caption='Какой у тебя вопрос?', reply_markup=markup)
                 return
     if get_part(message.from_user.id) == 2:
@@ -296,7 +297,7 @@ def get_text_messages(message):
             update_part(message.from_user.id, part=3)
 
             bot.send_photo(message.from_user.id,
-                           'https://lh6.googleusercontent.com/lw82EDuFWO4jzI_K9cBhi89OOO3ZxpJhxY5-ndvGhPzA4cVdpsXqsPEL1DI0jFItSgq2ldibdcQtn4v1raT4v6UgGTLd5urMeSggXNF1oxaCwCmVaHWoP6PozFQDOudG2A=w282',
+                           photo=open(os.path.join(direct, '/img/feel.jpg'), 'rb'),
                            caption='как вообще день проходит, как себя чувствуешь? все нормально?', reply_markup=markup)
             return
     if get_part(message.from_user.id) == 3:
@@ -307,11 +308,11 @@ def get_text_messages(message):
         markup.add(item1)
         update_part(message.from_user.id, part=0)
         bot.send_photo(message.from_user.id,
-                       'https://lh6.googleusercontent.com/LWPEoQ8yebjLXQpt_KseWknDwDb22jTTXm8_vtonTajw6CiygfG2GzW531eDdl2VXxBsvotyTSVsOFWyGamMmOZ27HaAikd8Ni6-BrNKa2ffOo6y6VUhQ6yf0YBrHaLvoA=w564',
+                       photo=open(os.path.join(direct, '/img/final.jpg'), 'rb'),
                        caption='спасибо за твой вопрос! очень скоро наши админы ответят на него в канале или лично :)', reply_markup=markup)
         return
 
 if __name__ == "__main__":
     bot.remove_webhook()
     bot.set_webhook(url=APP_URL)
-    server.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    server.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5001)))
