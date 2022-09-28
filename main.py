@@ -229,7 +229,7 @@ def get_text_messages(message):
             items.append(types.KeyboardButton(quest_types[i][1]))
             markup.add(items[i])
         update_part(message.from_user.id, part=1)
-        bot.send_photo(message.from_user.id, photo=open(os.path.join(direct, '/img/type.jpg'), 'rb'),
+        bot.send_photo(message.from_user.id, photo=open(os.path.join(direct, 'img/type.jpg'), 'rb'),
                        caption='Выберите тип вопроса', reply_markup=markup)
         return
 
@@ -266,7 +266,7 @@ def get_text_messages(message):
                     items.append(types.KeyboardButton(subjects[i][0]))
                     markup.add(items[i])
                 bot.send_photo(message.from_user.id,
-                               photo=open(os.path.join(direct, '/img/1.jpg'), 'rb'),
+                               photo=open(os.path.join(direct, 'img/1.jpg'), 'rb'),
                                caption='Какой предмет?', reply_markup=markup)
                 return
             elif message.text.strip() == 'нужна личная встреча с кем-то из дп2':
@@ -277,7 +277,7 @@ def get_text_messages(message):
                     items.append(types.KeyboardButton(admins[i][0]))
                     markup.add(items[i])
                 bot.send_photo(message.from_user.id,
-                               photo=open(os.path.join(direct, '/img/meet.jpg'), 'rb'),
+                               photo=open(os.path.join(direct, 'img/meet.jpg'), 'rb'),
                                caption='с кем ты хочешь встретиться?', reply_markup=markup)
                 return
 
@@ -285,7 +285,7 @@ def get_text_messages(message):
                 update_part(message.from_user.id, part=2)
                 markup = types.ReplyKeyboardRemove()
                 bot.send_photo(message.from_user.id,
-                               photo=open(os.path.join(direct, '/img/quest.jpg'), 'rb'),
+                               photo=open(os.path.join(direct, 'img/quest.jpg'), 'rb'),
                                caption='Какой у тебя вопрос?', reply_markup=markup)
                 return
     if get_part(message.from_user.id) == 2:
@@ -297,7 +297,7 @@ def get_text_messages(message):
             update_part(message.from_user.id, part=3)
 
             bot.send_photo(message.from_user.id,
-                           photo=open(os.path.join(direct, '/img/feel.jpg'), 'rb'),
+                           photo=open(os.path.join(direct, 'img/feel.jpg'), 'rb'),
                            caption='как вообще день проходит, как себя чувствуешь? все нормально?', reply_markup=markup)
             return
     if get_part(message.from_user.id) == 3:
@@ -308,7 +308,7 @@ def get_text_messages(message):
         markup.add(item1)
         update_part(message.from_user.id, part=0)
         bot.send_photo(message.from_user.id,
-                       photo=open(os.path.join(direct, '/img/final.jpg'), 'rb'),
+                       photo=open(os.path.join(direct, 'img/final.jpg'), 'rb'),
                        caption='спасибо за твой вопрос! очень скоро наши админы ответят на него в канале или лично :)', reply_markup=markup)
         return
 
