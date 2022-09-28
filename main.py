@@ -82,6 +82,12 @@ def get_quest_by_id(id: int):
     conn.commit()
     return cursor.fetchall()[0]
 
+def get_quests_by_subject(subject: str):
+    id = get_subj_by_name(subject)
+    cursor.execute('SELECT * FROM questions WHERE subject=%s', [id])
+    conn.commit()
+    return cursor.fetchall()
+
 def update_quest(qid: int, question: str = None, subject: int = None, feelings: str = None, admin_id: int = None):
     if question is not None:
         cursor.execute('UPDATE questions SET question=%s WHERE id=%s', (question, qid))
@@ -112,6 +118,11 @@ def get_subj():
     conn.commit()
     return cursor.fetchall()
 
+def get_subj_by_name(subject: str):
+    cursor.execute('SELECT id FROM subjects WHERE subject_name=%s', [subject])
+    conn.commit()
+    return cursor.fetchall()[0][0]
+
 def update_admin_part(user_id: int, part: int):
     cursor.execute('UPDATE admins SET part=%s WHERE user_id=%s', (part, user_id))
     conn.commit()
@@ -128,10 +139,12 @@ def start_message(message):
         set_uid_by_username(message.from_user.username, message.from_user.id)
         item1 = ("Найти вопрос")
         item2 = ("Просмотреть все вопросы")
-        item3 = ("Закрыть вопрос")
+        item3 = ("Просмотреть вопросы по предмету")
+        item4 = ("Закрыть вопрос")
         markup.add(item1)
         markup.add(item2)
         markup.add(item3)
+        markup.add(item4)
     except:
         try:
             get_part(message.from_user.id)
@@ -163,10 +176,12 @@ def get_text_messages(message):
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item1 = ("Найти вопрос")
             item2 = ("Просмотреть все вопросы")
-            item3 = ("Закрыть вопрос")
+            item3 = ("Просмотреть вопросы по предмету")
+            item4 = ("Закрыть вопрос")
             markup.add(item1)
             markup.add(item2)
             markup.add(item3)
+            markup.add(item4)
             bot.send_message(message.from_user.id, 'Нет открытых вопросов', reply_markup=markup)
         else:
             for i in range(len(quests)):
@@ -186,10 +201,64 @@ def get_text_messages(message):
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 item1 = ("Найти вопрос")
                 item2 = ("Просмотреть все вопросы")
-                item3 = ("Закрыть вопрос")
+                item3 = ("Просмотреть вопросы по предмету")
+                item4 = ("Закрыть вопрос")
                 markup.add(item1)
                 markup.add(item2)
                 markup.add(item3)
+                markup.add(item4)
+                bot.send_message(message.from_user.id, msg, reply_markup=markup)
+        return
+
+    if message.text.strip() == 'Просмотреть вопросы по предмету':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        subjects = get_subj()
+        items = []
+        for i in range(0, len(subjects)):
+            items.append(types.KeyboardButton(subjects[i][0]))
+            markup.add(items[i])
+        update_admin_part(message.from_user.id, 3)
+        bot.send_message(message.from_user.id, 'Какой предмет?', reply_markup=markup)
+        return
+
+    if get_admin_part(message.from_user.username) == 3:
+        update_admin_part(message.from_user.id, 0)
+        quests = get_quests_by_subject(message.text.strip())
+        if (len(quests) == 0):
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            item1 = ("Найти вопрос")
+            item2 = ("Просмотреть все вопросы")
+            item3 = ("Просмотреть вопросы по предмету")
+            item4 = ("Закрыть вопрос")
+            markup.add(item1)
+            markup.add(item2)
+            markup.add(item3)
+            markup.add(item4)
+            bot.send_message(message.from_user.id, 'Нет открытых вопросов', reply_markup=markup)
+        else:
+            for i in range(len(quests)):
+                name = get_name_by_id(quests[i][1])
+                if quests[i][3] is not None:
+                    msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(
+                        quests[i][0], quests[i][3], quests[i][4], quests[i][5], name)
+                elif quests[i][6] is not None:
+                    aname = get_admin_by_id(quests[i][6])
+                    msg = 'id вопроса: {}\nвопрос для встречи с {}: {}\nощущения: {}\nтг для связи: @{}'.format(
+                        quests[i][0], aname, quests[i][4], quests[i][5], name)
+                else:
+                    quest_type = get_quest_type_by_id(quests[i][2])
+                    msg = 'id вопроса: {}\n{}: {}\nощущения: {}\nтг для связи: @{}'.format(quests[i][0], quest_type,
+                                                                                           quests[i][4], quests[i][5],
+                                                                                           name)
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item1 = ("Найти вопрос")
+                item2 = ("Просмотреть все вопросы")
+                item3 = ("Просмотреть вопросы по предмету")
+                item4 = ("Закрыть вопрос")
+                markup.add(item1)
+                markup.add(item2)
+                markup.add(item3)
+                markup.add(item4)
                 bot.send_message(message.from_user.id, msg, reply_markup=markup)
         return
 
@@ -216,19 +285,23 @@ def get_text_messages(message):
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item1 = ("Найти вопрос")
             item2 = ("Просмотреть все вопросы")
-            item3 = ("Закрыть вопрос")
+            item3 = ("Просмотреть вопросы по предмету")
+            item4 = ("Закрыть вопрос")
             markup.add(item1)
             markup.add(item2)
             markup.add(item3)
+            markup.add(item4)
             bot.send_message(message.from_user.id, msg, reply_markup=markup)
         except:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item1 = ("Найти вопрос")
             item2 = ("Просмотреть все вопросы")
-            item3 = ("Закрыть вопрос")
+            item3 = ("Просмотреть вопросы по предмету")
+            item4 = ("Закрыть вопрос")
             markup.add(item1)
             markup.add(item2)
             markup.add(item3)
+            markup.add(item4)
             bot.send_message(message.from_user.id, 'Вопроса с таким id нет', reply_markup=markup)
         return
 
@@ -240,19 +313,23 @@ def get_text_messages(message):
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item1 = ("Найти вопрос")
             item2 = ("Просмотреть все вопросы")
-            item3 = ("Закрыть вопрос")
+            item3 = ("Просмотреть вопросы по предмету")
+            item4 = ("Закрыть вопрос")
             markup.add(item1)
             markup.add(item2)
             markup.add(item3)
+            markup.add(item4)
             bot.send_message(message.chat.id, 'Успешно!', reply_markup=markup)
         except:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item1 = ("Найти вопрос")
             item2 = ("Просмотреть все вопросы")
-            item3 = ("Закрыть вопрос")
+            item3 = ("Просмотреть вопросы по предмету")
+            item4 = ("Закрыть вопрос")
             markup.add(item1)
             markup.add(item2)
             markup.add(item3)
+            markup.add(item4)
             bot.send_message(message.chat.id, 'Вопроса с таким id нет', reply_markup=markup)
         return
 
