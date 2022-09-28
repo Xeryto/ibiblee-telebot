@@ -164,271 +164,278 @@ def start_message(message):
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    if message.text.strip() == 'Найти вопрос':
-        update_admin_part(message.from_user.id, 1)
-        markup = types.ReplyKeyboardRemove()
-        bot.send_message(message.from_user.id, 'Какой id вопроса?', reply_markup=markup)
-        return
-
-    if message.text.strip() == 'Закрыть вопрос':
-        update_admin_part(message.from_user.id, 2)
-        markup = types.ReplyKeyboardRemove()
-        bot.send_message(message.from_user.id, 'Какой id вопроса?', reply_markup=markup)
-        return
-
-    if message.text.strip() == 'Просмотреть все вопросы':
-        quests = get_open_quests()
-        if (len(quests) == 0):
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            item1 = ("Найти вопрос")
-            item2 = ("Просмотреть все вопросы")
-            item3 = ("Просмотреть вопросы по предмету")
-            item4 = ("Закрыть вопрос")
-            markup.add(item1)
-            markup.add(item2)
-            markup.add(item3)
-            markup.add(item4)
-            bot.send_message(message.from_user.id, 'Нет открытых вопросов', reply_markup=markup)
-        else:
-            for i in range(len(quests)):
-                name = get_name_by_id(quests[i][1])
-                if quests[i][3] is not None:
-                    msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(
-                        quests[i][0], quests[i][3], quests[i][4], quests[i][5], name)
-                elif quests[i][6] is not None:
-                    aname = get_admin_by_id(quests[i][6])
-                    msg = 'id вопроса: {}\nвопрос для встречи с {}: {}\nощущения: {}\nтг для связи: @{}'.format(
-                        quests[i][0], aname, quests[i][4], quests[i][5], name)
-                else:
-                    quest_type = get_quest_type_by_id(quests[i][2])
-                    msg = 'id вопроса: {}\n{}: {}\nощущения: {}\nтг для связи: @{}'.format(quests[i][0], quest_type,
-                                                                                           quests[i][4], quests[i][5],
-                                                                                           name)
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                item1 = ("Найти вопрос")
-                item2 = ("Просмотреть все вопросы")
-                item3 = ("Просмотреть вопросы по предмету")
-                item4 = ("Закрыть вопрос")
-                markup.add(item1)
-                markup.add(item2)
-                markup.add(item3)
-                markup.add(item4)
-                bot.send_message(message.from_user.id, msg, reply_markup=markup)
-        return
-
-    if message.text.strip() == 'Просмотреть вопросы по предмету':
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        subjects = get_subj()
-        items = []
-        for i in range(0, len(subjects)):
-            items.append(types.KeyboardButton(subjects[i][0]))
-            markup.add(items[i])
-        update_admin_part(message.from_user.id, 3)
-        bot.send_message(message.from_user.id, 'Какой предмет?', reply_markup=markup)
-        return
-
-    if get_admin_part(message.from_user.username) == 3:
-        update_admin_part(message.from_user.id, 0)
-        quests = get_quests_by_subject(message.text.strip())
-        if (len(quests) == 0):
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            item1 = ("Найти вопрос")
-            item2 = ("Просмотреть все вопросы")
-            item3 = ("Просмотреть вопросы по предмету")
-            item4 = ("Закрыть вопрос")
-            markup.add(item1)
-            markup.add(item2)
-            markup.add(item3)
-            markup.add(item4)
-            bot.send_message(message.from_user.id, 'Нет открытых вопросов', reply_markup=markup)
-        else:
-            for i in range(len(quests)):
-                name = get_name_by_id(quests[i][1])
-                if quests[i][3] is not None:
-                    msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(
-                        quests[i][0], quests[i][3], quests[i][4], quests[i][5], name)
-                elif quests[i][6] is not None:
-                    aname = get_admin_by_id(quests[i][6])
-                    msg = 'id вопроса: {}\nвопрос для встречи с {}: {}\nощущения: {}\nтг для связи: @{}'.format(
-                        quests[i][0], aname, quests[i][4], quests[i][5], name)
-                else:
-                    quest_type = get_quest_type_by_id(quests[i][2])
-                    msg = 'id вопроса: {}\n{}: {}\nощущения: {}\nтг для связи: @{}'.format(quests[i][0], quest_type,
-                                                                                           quests[i][4], quests[i][5],
-                                                                                           name)
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                item1 = ("Найти вопрос")
-                item2 = ("Просмотреть все вопросы")
-                item3 = ("Просмотреть вопросы по предмету")
-                item4 = ("Закрыть вопрос")
-                markup.add(item1)
-                markup.add(item2)
-                markup.add(item3)
-                markup.add(item4)
-                bot.send_message(message.from_user.id, msg, reply_markup=markup)
-        return
-
-    if get_admin_part(message.from_user.username) == 1:
-        update_admin_part(message.from_user.id, 0)
-        try:
-            quest = get_quest_by_id(int(message.text.strip()))
-            name = get_name_by_id(quest[1])
-            if quest[3] is not None:
-                msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(quest[0],
-                                                                                                          quest[3],
-                                                                                                          quest[4],
-                                                                                                          quest[5],
-                                                                                                          name)
-            elif quest[6] is not None:
-                aname = get_admin_by_id(quest[6])
-                msg = 'id вопроса: {}\nвопрос для встречи с {}: {}\nощущения: {}\nтг для связи: @{}'.format(
-                    quest[0], aname, quest[4], quest[5], name)
-            else:
-                quest_type = get_quest_type_by_id(quest[2])
-                msg = 'id вопроса: {}\n{}: {}\nощущения: {}\nтг для связи: @{}'.format(quest[0], quest_type,
-                                                                                       quest[4], quest[5],
-                                                                                       name)
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            item1 = ("Найти вопрос")
-            item2 = ("Просмотреть все вопросы")
-            item3 = ("Просмотреть вопросы по предмету")
-            item4 = ("Закрыть вопрос")
-            markup.add(item1)
-            markup.add(item2)
-            markup.add(item3)
-            markup.add(item4)
-            bot.send_message(message.from_user.id, msg, reply_markup=markup)
-        except:
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            item1 = ("Найти вопрос")
-            item2 = ("Просмотреть все вопросы")
-            item3 = ("Просмотреть вопросы по предмету")
-            item4 = ("Закрыть вопрос")
-            markup.add(item1)
-            markup.add(item2)
-            markup.add(item3)
-            markup.add(item4)
-            bot.send_message(message.from_user.id, 'Вопроса с таким id нет', reply_markup=markup)
-        return
-
-    if get_admin_part(message.from_user.username) == 2:
-        update_admin_part(message.from_user.id, 0)
-        try:
-            quest = get_quest_by_id(int(message.text.strip()))
-            update_quest_status(int(message.text.strip()))
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            item1 = ("Найти вопрос")
-            item2 = ("Просмотреть все вопросы")
-            item3 = ("Просмотреть вопросы по предмету")
-            item4 = ("Закрыть вопрос")
-            markup.add(item1)
-            markup.add(item2)
-            markup.add(item3)
-            markup.add(item4)
-            bot.send_message(message.chat.id, 'Успешно!', reply_markup=markup)
-        except:
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            item1 = ("Найти вопрос")
-            item2 = ("Просмотреть все вопросы")
-            item3 = ("Просмотреть вопросы по предмету")
-            item4 = ("Закрыть вопрос")
-            markup.add(item1)
-            markup.add(item2)
-            markup.add(item3)
-            markup.add(item4)
-            bot.send_message(message.chat.id, 'Вопроса с таким id нет', reply_markup=markup)
-        return
-
-    if message.text.strip() == 'Задать вопрос':
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        quest_types = get_quest_types()
-        items = []
-        for i in range(0, len(quest_types)):
-            items.append(types.KeyboardButton(quest_types[i][1]))
-            markup.add(items[i])
-        update_part(message.from_user.id, part=1)
-        bot.send_photo(message.from_user.id, photo=open(os.path.join(direct, 'img/type.jpg'), 'rb'),
-                       caption='Выберите тип вопроса', reply_markup=markup)
-        return
-
-    if get_part(message.from_user.id) == 1:
-        try:
-            try:
-                quest_types = get_quest_types()
-                columns = list(zip(*quest_types))
-                id = columns[1].index(message.text.strip())
-                qid = add_quest(message.from_user.id, id)
-                update_part(message.from_user.id, current_quest=qid[0][0])
-            except:
-                admins = get_admins()
-                columns = list(zip(*admins))
-                id = columns[1][columns[0].index(message.text.strip())]
-                qid = get_cur_quest(message.from_user.id)
-                update_quest(qid, admin_id=id)
-                aid = check_null(id)
-                if aid is not None:
-                    msg = 'Кто-то хочет с вами встретиться! Вот его ник в telegram: @{}, id запроса - {}'.format(message.from_user.username, qid)
-                    bot.send_message(aid, msg)
-        except:
-            subjects = get_subj()
-            columns = list(zip(*subjects))
-            id = columns[0].index(message.text.strip())
-            qid = get_cur_quest(message.from_user.id)
-            update_quest(qid, subject=id)
-        finally:
-            if message.text.strip() == 'вопрос по предмету':
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                subjects = get_subj()
-                items = []
-                for i in range(0, len(subjects)):
-                    items.append(types.KeyboardButton(subjects[i][0]))
-                    markup.add(items[i])
-                bot.send_photo(message.from_user.id,
-                               photo=open(os.path.join(direct, 'img/1.jpg'), 'rb'),
-                               caption='Какой предмет?', reply_markup=markup)
-                return
-            elif message.text.strip() == 'нужна личная встреча с кем-то из дп2':
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                admins = get_admins()
-                items = []
-                for i in range(0, len(admins)):
-                    items.append(types.KeyboardButton(admins[i][0]))
-                    markup.add(items[i])
-                bot.send_photo(message.from_user.id,
-                               photo=open(os.path.join(direct, 'img/meet.jpg'), 'rb'),
-                               caption='с кем ты хочешь встретиться?', reply_markup=markup)
-                return
-
-            else:
-                update_part(message.from_user.id, part=2)
-                markup = types.ReplyKeyboardRemove()
-                bot.send_photo(message.from_user.id,
-                               photo=open(os.path.join(direct, 'img/quest.jpg'), 'rb'),
-                               caption='Какой у тебя вопрос?', reply_markup=markup)
-                return
-    if get_part(message.from_user.id) == 2:
-        try:
-            qid = get_cur_quest(message.from_user.id)
-            update_quest(qid, question=message.text.strip())
-        finally:
+    try:
+        get_admin_by_name(message.from_user.username)
+        if message.text.strip() == 'Найти вопрос':
+            update_admin_part(message.from_user.id, 1)
             markup = types.ReplyKeyboardRemove()
-            update_part(message.from_user.id, part=3)
-
-            bot.send_photo(message.from_user.id,
-                           photo=open(os.path.join(direct, 'img/feel.jpg'), 'rb'),
-                           caption='как вообще день проходит, как себя чувствуешь? все нормально?', reply_markup=markup)
+            bot.send_message(message.from_user.id, 'Какой id вопроса?', reply_markup=markup)
             return
-    if get_part(message.from_user.id) == 3:
-        qid = get_cur_quest(message.from_user.id)
-        update_quest(qid, feelings=message.text.strip())
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        item1 = types.KeyboardButton("Задать вопрос")
-        markup.add(item1)
-        update_part(message.from_user.id, part=0)
-        bot.send_photo(message.from_user.id,
-                       photo=open(os.path.join(direct, 'img/final.jpg'), 'rb'),
-                       caption='спасибо за твой вопрос! очень скоро наши админы ответят на него в канале или лично :)', reply_markup=markup)
-        return
+
+        if message.text.strip() == 'Закрыть вопрос':
+            update_admin_part(message.from_user.id, 2)
+            markup = types.ReplyKeyboardRemove()
+            bot.send_message(message.from_user.id, 'Какой id вопроса?', reply_markup=markup)
+            return
+
+        if message.text.strip() == 'Просмотреть все вопросы':
+            quests = get_open_quests()
+            if (len(quests) == 0):
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item1 = ("Найти вопрос")
+                item2 = ("Просмотреть все вопросы")
+                item3 = ("Просмотреть вопросы по предмету")
+                item4 = ("Закрыть вопрос")
+                markup.add(item1)
+                markup.add(item2)
+                markup.add(item3)
+                markup.add(item4)
+                bot.send_message(message.from_user.id, 'Нет открытых вопросов', reply_markup=markup)
+            else:
+                for i in range(len(quests)):
+                    name = get_name_by_id(quests[i][1])
+                    if quests[i][3] is not None:
+                        msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(
+                            quests[i][0], quests[i][3], quests[i][4], quests[i][5], name)
+                    elif quests[i][6] is not None:
+                        aname = get_admin_by_id(quests[i][6])
+                        msg = 'id вопроса: {}\nвопрос для встречи с {}: {}\nощущения: {}\nтг для связи: @{}'.format(
+                            quests[i][0], aname, quests[i][4], quests[i][5], name)
+                    else:
+                        quest_type = get_quest_type_by_id(quests[i][2])
+                        msg = 'id вопроса: {}\n{}: {}\nощущения: {}\nтг для связи: @{}'.format(quests[i][0], quest_type,
+                                                                                               quests[i][4],
+                                                                                               quests[i][5],
+                                                                                               name)
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    item1 = ("Найти вопрос")
+                    item2 = ("Просмотреть все вопросы")
+                    item3 = ("Просмотреть вопросы по предмету")
+                    item4 = ("Закрыть вопрос")
+                    markup.add(item1)
+                    markup.add(item2)
+                    markup.add(item3)
+                    markup.add(item4)
+                    bot.send_message(message.from_user.id, msg, reply_markup=markup)
+            return
+
+        if message.text.strip() == 'Просмотреть вопросы по предмету':
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            subjects = get_subj()
+            items = []
+            for i in range(0, len(subjects)):
+                items.append(types.KeyboardButton(subjects[i][0]))
+                markup.add(items[i])
+            update_admin_part(message.from_user.id, 3)
+            bot.send_message(message.from_user.id, 'Какой предмет?', reply_markup=markup)
+            return
+
+        if get_admin_part(message.from_user.username) == 3:
+            update_admin_part(message.from_user.id, 0)
+            quests = get_quests_by_subject(message.text.strip())
+            if (len(quests) == 0):
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item1 = ("Найти вопрос")
+                item2 = ("Просмотреть все вопросы")
+                item3 = ("Просмотреть вопросы по предмету")
+                item4 = ("Закрыть вопрос")
+                markup.add(item1)
+                markup.add(item2)
+                markup.add(item3)
+                markup.add(item4)
+                bot.send_message(message.from_user.id, 'Нет открытых вопросов', reply_markup=markup)
+            else:
+                for i in range(len(quests)):
+                    name = get_name_by_id(quests[i][1])
+                    if quests[i][3] is not None:
+                        msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(
+                            quests[i][0], quests[i][3], quests[i][4], quests[i][5], name)
+                    elif quests[i][6] is not None:
+                        aname = get_admin_by_id(quests[i][6])
+                        msg = 'id вопроса: {}\nвопрос для встречи с {}: {}\nощущения: {}\nтг для связи: @{}'.format(
+                            quests[i][0], aname, quests[i][4], quests[i][5], name)
+                    else:
+                        quest_type = get_quest_type_by_id(quests[i][2])
+                        msg = 'id вопроса: {}\n{}: {}\nощущения: {}\nтг для связи: @{}'.format(quests[i][0], quest_type,
+                                                                                               quests[i][4],
+                                                                                               quests[i][5],
+                                                                                               name)
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    item1 = ("Найти вопрос")
+                    item2 = ("Просмотреть все вопросы")
+                    item3 = ("Просмотреть вопросы по предмету")
+                    item4 = ("Закрыть вопрос")
+                    markup.add(item1)
+                    markup.add(item2)
+                    markup.add(item3)
+                    markup.add(item4)
+                    bot.send_message(message.from_user.id, msg, reply_markup=markup)
+            return
+
+        if get_admin_part(message.from_user.username) == 1:
+            update_admin_part(message.from_user.id, 0)
+            try:
+                quest = get_quest_by_id(int(message.text.strip()))
+                name = get_name_by_id(quest[1])
+                if quest[3] is not None:
+                    msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(quest[0],
+                                                                                                              quest[3],
+                                                                                                              quest[4],
+                                                                                                              quest[5],
+                                                                                                              name)
+                elif quest[6] is not None:
+                    aname = get_admin_by_id(quest[6])
+                    msg = 'id вопроса: {}\nвопрос для встречи с {}: {}\nощущения: {}\nтг для связи: @{}'.format(
+                        quest[0], aname, quest[4], quest[5], name)
+                else:
+                    quest_type = get_quest_type_by_id(quest[2])
+                    msg = 'id вопроса: {}\n{}: {}\nощущения: {}\nтг для связи: @{}'.format(quest[0], quest_type,
+                                                                                           quest[4], quest[5],
+                                                                                           name)
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item1 = ("Найти вопрос")
+                item2 = ("Просмотреть все вопросы")
+                item3 = ("Просмотреть вопросы по предмету")
+                item4 = ("Закрыть вопрос")
+                markup.add(item1)
+                markup.add(item2)
+                markup.add(item3)
+                markup.add(item4)
+                bot.send_message(message.from_user.id, msg, reply_markup=markup)
+            except:
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item1 = ("Найти вопрос")
+                item2 = ("Просмотреть все вопросы")
+                item3 = ("Просмотреть вопросы по предмету")
+                item4 = ("Закрыть вопрос")
+                markup.add(item1)
+                markup.add(item2)
+                markup.add(item3)
+                markup.add(item4)
+                bot.send_message(message.from_user.id, 'Вопроса с таким id нет', reply_markup=markup)
+            return
+
+        if get_admin_part(message.from_user.username) == 2:
+            update_admin_part(message.from_user.id, 0)
+            try:
+                quest = get_quest_by_id(int(message.text.strip()))
+                update_quest_status(int(message.text.strip()))
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item1 = ("Найти вопрос")
+                item2 = ("Просмотреть все вопросы")
+                item3 = ("Просмотреть вопросы по предмету")
+                item4 = ("Закрыть вопрос")
+                markup.add(item1)
+                markup.add(item2)
+                markup.add(item3)
+                markup.add(item4)
+                bot.send_message(message.chat.id, 'Успешно!', reply_markup=markup)
+            except:
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item1 = ("Найти вопрос")
+                item2 = ("Просмотреть все вопросы")
+                item3 = ("Просмотреть вопросы по предмету")
+                item4 = ("Закрыть вопрос")
+                markup.add(item1)
+                markup.add(item2)
+                markup.add(item3)
+                markup.add(item4)
+                bot.send_message(message.chat.id, 'Вопроса с таким id нет', reply_markup=markup)
+            return
+    except:
+        if message.text.strip() == 'Задать вопрос':
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            quest_types = get_quest_types()
+            items = []
+            for i in range(0, len(quest_types)):
+                items.append(types.KeyboardButton(quest_types[i][1]))
+                markup.add(items[i])
+            update_part(message.from_user.id, part=1)
+            bot.send_photo(message.from_user.id, photo=open(os.path.join(direct, 'img/type.jpg'), 'rb'),
+                           caption='Выберите тип вопроса', reply_markup=markup)
+            return
+
+        if get_part(message.from_user.id) == 1:
+            try:
+                try:
+                    quest_types = get_quest_types()
+                    columns = list(zip(*quest_types))
+                    id = columns[1].index(message.text.strip())
+                    qid = add_quest(message.from_user.id, id)
+                    update_part(message.from_user.id, current_quest=qid[0][0])
+                except:
+                    admins = get_admins()
+                    columns = list(zip(*admins))
+                    id = columns[1][columns[0].index(message.text.strip())]
+                    qid = get_cur_quest(message.from_user.id)
+                    update_quest(qid, admin_id=id)
+                    aid = check_null(id)
+                    if aid is not None:
+                        msg = 'Кто-то хочет с вами встретиться! Вот его ник в telegram: @{}, id запроса - {}'.format(
+                            message.from_user.username, qid)
+                        bot.send_message(aid, msg)
+            except:
+                subjects = get_subj()
+                columns = list(zip(*subjects))
+                id = columns[0].index(message.text.strip())
+                qid = get_cur_quest(message.from_user.id)
+                update_quest(qid, subject=id)
+            finally:
+                if message.text.strip() == 'вопрос по предмету':
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    subjects = get_subj()
+                    items = []
+                    for i in range(0, len(subjects)):
+                        items.append(types.KeyboardButton(subjects[i][0]))
+                        markup.add(items[i])
+                    bot.send_photo(message.from_user.id,
+                                   photo=open(os.path.join(direct, 'img/1.jpg'), 'rb'),
+                                   caption='Какой предмет?', reply_markup=markup)
+                    return
+                elif message.text.strip() == 'нужна личная встреча с кем-то из дп2':
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    admins = get_admins()
+                    items = []
+                    for i in range(0, len(admins)):
+                        items.append(types.KeyboardButton(admins[i][0]))
+                        markup.add(items[i])
+                    bot.send_photo(message.from_user.id,
+                                   photo=open(os.path.join(direct, 'img/meet.jpg'), 'rb'),
+                                   caption='с кем ты хочешь встретиться?', reply_markup=markup)
+                    return
+
+                else:
+                    update_part(message.from_user.id, part=2)
+                    markup = types.ReplyKeyboardRemove()
+                    bot.send_photo(message.from_user.id,
+                                   photo=open(os.path.join(direct, 'img/quest.jpg'), 'rb'),
+                                   caption='Какой у тебя вопрос?', reply_markup=markup)
+                    return
+        if get_part(message.from_user.id) == 2:
+            try:
+                qid = get_cur_quest(message.from_user.id)
+                update_quest(qid, question=message.text.strip())
+            finally:
+                markup = types.ReplyKeyboardRemove()
+                update_part(message.from_user.id, part=3)
+
+                bot.send_photo(message.from_user.id,
+                               photo=open(os.path.join(direct, 'img/feel.jpg'), 'rb'),
+                               caption='как вообще день проходит, как себя чувствуешь? все нормально?',
+                               reply_markup=markup)
+                return
+        if get_part(message.from_user.id) == 3:
+            qid = get_cur_quest(message.from_user.id)
+            update_quest(qid, feelings=message.text.strip())
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            item1 = types.KeyboardButton("Задать вопрос")
+            markup.add(item1)
+            update_part(message.from_user.id, part=0)
+            bot.send_photo(message.from_user.id,
+                           photo=open(os.path.join(direct, 'img/final.jpg'), 'rb'),
+                           caption='спасибо за твой вопрос! очень скоро наши админы ответят на него в канале или лично :)',
+                           reply_markup=markup)
+            return
 
 if __name__ == "__main__":
     bot.remove_webhook()
