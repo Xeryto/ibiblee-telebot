@@ -361,7 +361,7 @@ def get_text_messages(message):
                     quest_types = get_quest_types()
                     columns = list(zip(*quest_types))
                     id = columns[1].index(message.text.strip())
-                    qid = add_quest(message.from_user.id, id)
+                    qid = add_quest(message.from_user.id, id+1)
                     update_part(message.from_user.id, current_quest=qid[0][0])
                 except:
                     admins = get_admins()
