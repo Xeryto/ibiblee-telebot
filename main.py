@@ -62,6 +62,11 @@ def set_uid_by_username(username: str, user_id: int):
     cursor.execute('UPDATE admins SET user_id=%s WHERE username=%s', (user_id, username))
     conn.commit()
 
+def get_admin_by_name(username: str):
+    cursor.execute('SELECT * FROM admins WHERE username=%s', [username])
+    conn.commit()
+    return cursor.fetchall()[0][0]
+
 def get_cur_quest(user_id: int):
     cursor.execute('SELECT current_quest_id FROM user_part WHERE user_id=%s', ([user_id]))
     conn.commit()
@@ -136,6 +141,7 @@ def get_admin_part(username: str):
 def start_message(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     try:
+        admin = get_admin_by_name(message.from_user.username)
         set_uid_by_username(message.from_user.username, message.from_user.id)
         item1 = ("Найти вопрос")
         item2 = ("Просмотреть все вопросы")
