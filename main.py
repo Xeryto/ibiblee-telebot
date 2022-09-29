@@ -128,6 +128,11 @@ def get_subj_by_name(subject: str):
     conn.commit()
     return cursor.fetchall()[0][0]
 
+def get_subj_by_id(id: int):
+    cursor.execute('SELECT subject_name FROM subjects WHERE id=%s', [id])
+    conn.commit()
+    return cursor.fetchall()[0][0]
+
 def update_admin_part(user_id: int, part: int):
     cursor.execute('UPDATE admins SET part=%s WHERE user_id=%s', (part, user_id))
     conn.commit()
@@ -195,8 +200,9 @@ def get_text_messages(message):
                 for i in range(len(quests)):
                     name = get_name_by_id(quests[i][1])
                     if quests[i][3] is not None:
+                        subj = get_subj_by_id(quests[i][3])
                         msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(
-                            quests[i][0], quests[i][3], quests[i][4], quests[i][5], name)
+                            quests[i][0], subj, quests[i][4], quests[i][5], name)
                     elif quests[i][6] is not None:
                         aname = get_admin_by_id(quests[i][6])
                         msg = 'id вопроса: {}\nвопрос для встречи с {}: {}\nощущения: {}\nтг для связи: @{}'.format(
@@ -248,8 +254,9 @@ def get_text_messages(message):
                 for i in range(len(quests)):
                     name = get_name_by_id(quests[i][1])
                     if quests[i][3] is not None:
+                        subj = get_subj_by_id(quests[i][3])
                         msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(
-                            quests[i][0], quests[i][3], quests[i][4], quests[i][5], name)
+                            quests[i][0], subj, quests[i][4], quests[i][5], name)
                     elif quests[i][6] is not None:
                         aname = get_admin_by_id(quests[i][6])
                         msg = 'id вопроса: {}\nвопрос для встречи с {}: {}\nощущения: {}\nтг для связи: @{}'.format(
@@ -278,8 +285,9 @@ def get_text_messages(message):
                 quest = get_quest_by_id(int(message.text.strip()))
                 name = get_name_by_id(quest[1])
                 if quest[3] is not None:
+                    subj = get_subj_by_id(quests[3])
                     msg = 'id вопроса: {}\nвопрос по предмету {}: {}\nощущения: {}\nтг для связи: @{}'.format(quest[0],
-                                                                                                              quest[3],
+                                                                                                              subj,
                                                                                                               quest[4],
                                                                                                               quest[5],
                                                                                                               name)
@@ -361,7 +369,7 @@ def get_text_messages(message):
                     quest_types = get_quest_types()
                     columns = list(zip(*quest_types))
                     id = columns[1].index(message.text.strip())
-                    qid = add_quest(message.from_user.id, id)
+                    qid = add_quest(message.from_user.id, id+1)
                     update_part(message.from_user.id, current_quest=qid[0][0])
                 except:
                     admins = get_admins()
@@ -379,7 +387,7 @@ def get_text_messages(message):
                 columns = list(zip(*subjects))
                 id = columns[0].index(message.text.strip())
                 qid = get_cur_quest(message.from_user.id)
-                update_quest(qid, subject=id)
+                update_quest(qid, subject=id+1)
             finally:
                 if message.text.strip() == 'вопрос по предмету':
                     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
